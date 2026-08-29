@@ -99,7 +99,6 @@
     </div>
     <div class="total"><span>Total</span><span id="totalEl"></span></div>
     <div class="buy" id="buyBtns"></div>
-    <p class="fine" id="payNote"></p>
   </div>
 
   <footer>Made and shipped from Peterborough, New Hampshire.</footer>
@@ -141,10 +140,6 @@ function render(){
   }
   btns.push(`<a class="btn ${btns.length?"":"primary"}" href="mailto:${EMAIL}?subject=${enc("Magnet "+word+" ("+qty+")")}&body=${body}">Email your ${word}</a>`);
   $("buyBtns").innerHTML = btns.join("");
-  const payHow = (STRIPE || VENMO)
-    ? `Card and Venmo ${word}s: include your mailing address in the note.`
-    : `Send your ${word} and mailing address — you'll get payment details and a confirmation right back.`;
-  $("payNote").textContent = (PREORDER ? "Preorders ship as soon as the first batch is printed. " : "") + payHow;
 }
 function bump(d){ qty = Math.min(99, Math.max(1, qty + d)); render(); }
 render();
