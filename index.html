@@ -16,6 +16,7 @@
     --yellow:#FEDD00;   /* Pantone Yellow C — matched to the original sticker */
     --ink:#111111;
     --paper:#fffdf2;
+    --bad:#c0261a;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
@@ -45,13 +46,12 @@
     margin:4px 0 6px;
   }
   .tag{font-size:17px;font-weight:600;margin-bottom:16px}
-  .blurb{font-size:15.5px;line-height:1.45;margin-bottom:20px}
-  .blurb b{white-space:nowrap}
   .card{
     background:var(--paper);
     border:3px solid var(--ink);border-radius:16px;
     padding:18px 16px;margin-bottom:16px;
   }
+  .badge{display:inline-block;background:var(--ink);color:var(--yellow);font-weight:900;letter-spacing:1.5px;font-size:12px;padding:5px 12px;border-radius:999px;margin-bottom:12px}
   .pricerow{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .price{font-size:30px;font-weight:900}
   .each{font-size:13px;font-weight:600;opacity:.65}
@@ -62,21 +62,48 @@
   }
   .qty button:active{opacity:.8}
   .qty output{width:64px;text-align:center;font-size:24px;font-weight:900;background:#fff}
+  .fulfill{display:flex;gap:12px;margin-bottom:14px}
+  .opt{
+    flex:1;display:flex;align-items:center;gap:12px;
+    border:3px solid var(--ink);border-radius:14px;background:#fff;
+    padding:14px 12px;cursor:pointer;touch-action:manipulation;
+    font:inherit;text-align:left;min-height:64px;
+  }
+  .opt .box{
+    width:26px;height:26px;flex:0 0 26px;border:3px solid var(--ink);border-radius:7px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:900;color:transparent;background:#fff;
+  }
+  .opt b{display:block;font-size:16.5px}
+  .opt small{display:block;font-size:12.5px;font-weight:600;opacity:.65}
+  .opt.on{background:var(--ink);color:var(--yellow)}
+  .opt.on small{opacity:.8}
+  .opt.on .box{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+  .addr{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+  .addr input{
+    width:100%;border:3px solid var(--ink);border-radius:10px;background:#fff;
+    font:600 16px/1.2 inherit;font-family:inherit;padding:13px 12px;outline:none;
+  }
+  .addr input:focus{box-shadow:3px 3px 0 var(--ink)}
+  .addr input.bad{border-color:var(--bad)}
+  .row2{display:flex;gap:10px}
+  .row2 input:nth-child(1){flex:2.2}
+  .row2 input:nth-child(2){flex:.9;text-transform:uppercase}
+  .row2 input:nth-child(3){flex:1.1}
+  .addr-msg{font-size:13px;font-weight:700;color:var(--bad);min-height:16px}
+  .addr-msg.ok{color:#1c7a2e}
   .total{display:flex;justify-content:space-between;font-size:18px;font-weight:800;margin:6px 2px 14px}
   .buy{display:flex;flex-direction:column;gap:12px}
   .btn{
     display:flex;align-items:center;justify-content:center;gap:10px;
     min-height:58px;border-radius:14px;border:3px solid var(--ink);
     font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
-    text-decoration:none;color:var(--ink);background:#fff;
+    text-decoration:none;color:var(--yellow);background:var(--ink);
     touch-action:manipulation;
   }
   .btn:active{transform:translateY(1px)}
-  .btn.primary{background:var(--ink);color:var(--yellow)}
-  .badge{display:inline-block;background:var(--ink);color:var(--yellow);font-weight:900;letter-spacing:1.5px;font-size:12px;padding:5px 12px;border-radius:999px;margin-bottom:12px}
-  .fine{font-size:13px;line-height:1.5;opacity:.75;margin-top:4px}
-  .fine a{color:inherit}
-  footer{font-size:12.5px;opacity:.6;margin-top:22px;text-align:center}
+  .btn.off{opacity:.35;pointer-events:none}
+  .fine{font-size:13px;line-height:1.5;opacity:.75;margin-top:10px}
 </style>
 </head>
 <body>
@@ -100,55 +127,148 @@
         <button type="button" aria-label="More" onclick="bump(1)">+</button>
       </div>
     </div>
+
+    <div class="fulfill" role="group" aria-label="Shipping or pickup">
+      <button type="button" class="opt" id="optShip" onclick="setMode('ship')">
+        <span class="box">✓</span><span><b>Ship it</b><small id="shipSub"></small></span>
+      </button>
+      <button type="button" class="opt" id="optPick" onclick="setMode('pickup')">
+        <span class="box">✓</span><span><b>Pick it up</b><small>free · Peterborough NH</small></span>
+      </button>
+    </div>
+
+    <div class="addr" id="addrBox" hidden>
+      <input id="aName" placeholder="Name" autocomplete="name" oninput="revalidate()">
+      <input id="aStreet" placeholder="Street address" autocomplete="street-address" oninput="revalidate()">
+      <div class="row2">
+        <input id="aCity" placeholder="City" autocomplete="address-level2" oninput="revalidate()">
+        <input id="aState" placeholder="ST" maxlength="2" autocomplete="address-level1" oninput="revalidate()">
+        <input id="aZip" placeholder="ZIP" inputmode="numeric" maxlength="5" autocomplete="postal-code" oninput="zipChanged()">
+      </div>
+      <div class="addr-msg" id="addrMsg"></div>
+    </div>
+
     <div class="total"><span>Total</span><span id="totalEl"></span></div>
     <div class="buy" id="buyBtns"></div>
-    <p class="fine" id="payTip" hidden>Venmo orders: put your mailing address in the payment note.</p>
     <p class="fine">For bakers, movers, shakers, kneeders, givers, takers</p>
   </div>
 </main>
 
 <script>
 /* ====== CONFIG — edit these and redeploy ====== */
-const PRICE   = 8;                       // dollars each
-const SHIP    = 7;                       // flat shipping: ~$6 USPS Ground Advantage (commercial) + mailer
-const EMAIL   = "bdmartel@gmail.com";    // order email (always shown)
-const PHONE   = "";                      // e.g. "16035551234" -> shows "Text your order"
-const VENMO   = "Ben-Martel";            // shows Venmo button -> venmo.com/u/Ben-Martel
-const STRIPE  = "";                      // Stripe Payment Link URL -> shows card/Apple Pay button
-const PREORDER = true;                   // true = preorder badge + wording; set false when shipping from stock
+const PRICE    = 8;              // dollars each
+const SHIP     = 7;              // flat shipping when "Ship it" is chosen
+const VENMO    = "Ben-Martel";   // venmo.com/u/Ben-Martel
+const PREORDER = true;           // preorder badge; set false when shipping from stock
 /* ============================================== */
 
-let qty = 1;
+let qty = 1, mode = null, zipInfo = { zip: "", state: "", ok: false, checked: false };
 const $ = id => document.getElementById(id);
 const money = n => "$" + (n % 1 ? n.toFixed(2) : n);
+const val = id => $(id).value.trim();
 
-function orderText(){
-  const t = qty * PRICE + SHIP;
-  const want = PREORDER ? `to preorder ${qty}` : `${qty}`;
-  return `Hi Ben — I'd like ${want} Bake With Sourdough magnet${qty>1?"s":""} (${money(t)} total). Ship to:\n\n[your name + mailing address]`;
+const STATES = "AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(" ");
+
+function total(){ return qty*PRICE + (mode === "ship" ? SHIP : 0); }
+
+function fieldChecks(){
+  return {
+    aName:   val("aName").length >= 2,
+    aStreet: val("aStreet").length >= 4 && /\d/.test(val("aStreet")),
+    aCity:   val("aCity").length >= 2,
+    aState:  STATES.includes(val("aState").toUpperCase()),
+    aZip:    /^\d{5}$/.test(val("aZip")),
+  };
 }
+
+function addressValid(){
+  const c = fieldChecks();
+  if (!Object.values(c).every(Boolean)) return false;
+  if (zipInfo.checked && zipInfo.zip === val("aZip")){
+    if (!zipInfo.ok) return false;
+    if (zipInfo.state && zipInfo.state !== val("aState").toUpperCase()) return false;
+  }
+  return true;
+}
+
+async function zipChanged(){
+  const z = val("aZip");
+  if (!/^\d{5}$/.test(z)){ zipInfo = {zip:z, state:"", ok:false, checked:false}; revalidate(); return; }
+  try {
+    const r = await fetch("https://api.zippopotam.us/us/" + z);
+    if (r.ok){
+      const d = await r.json();
+      const place = d.places && d.places[0];
+      zipInfo = { zip: z, state: place ? place["state abbreviation"] : "", ok: true, checked: true };
+      if (place){
+        if (!val("aCity")) $("aCity").value = place["place name"];
+        if (!val("aState")) $("aState").value = place["state abbreviation"];
+      }
+    } else {
+      zipInfo = { zip: z, state: "", ok: false, checked: true };
+    }
+  } catch(e){
+    zipInfo = { zip: z, state: "", ok: true, checked: false }; // offline: don't block the sale
+  }
+  revalidate();
+}
+
+function revalidate(){
+  const c = fieldChecks();
+  for (const id in c) $(id).classList.toggle("bad", $(id).value.trim() !== "" && !c[id]);
+  const msg = $("addrMsg");
+  msg.className = "addr-msg";
+  if (mode === "ship"){
+    if (zipInfo.checked && zipInfo.zip === val("aZip") && !zipInfo.ok && c.aZip){
+      msg.textContent = "That ZIP doesn't exist — double-check it.";
+    } else if (zipInfo.checked && zipInfo.ok && zipInfo.state && c.aState && zipInfo.state !== val("aState").toUpperCase()){
+      msg.textContent = "ZIP " + val("aZip") + " is in " + zipInfo.state + ", not " + val("aState").toUpperCase() + ".";
+    } else if (addressValid()){
+      msg.textContent = "Address checks out.";
+      msg.className = "addr-msg ok";
+    } else {
+      msg.textContent = "";
+    }
+  }
+  render();
+}
+
+function setMode(m){
+  mode = m;
+  $("optShip").classList.toggle("on", m === "ship");
+  $("optPick").classList.toggle("on", m === "pickup");
+  $("addrBox").hidden = (m !== "ship");
+  revalidate();
+}
+
+function clean(s){
+  return s.trim().replace(/[^\w#\/]+/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"");
+}
+
+function venmoHref(){
+  const m = `${qty}-magnet${qty>1?"s":""}`;
+  let note;
+  if (mode === "pickup"){
+    note = `${m}-PICKUP`;
+  } else {
+    note = `${m}-ship-to:-${clean(val("aName"))}-${clean(val("aStreet"))}-${clean(val("aCity"))}-${val("aState").toUpperCase()}-${val("aZip")}`;
+  }
+  return `https://venmo.com/${VENMO}?txn=pay&amount=${total()}&note=${note}`;
+}
+
 function render(){
-  const word = PREORDER ? "preorder" : "order";
   $("preBadge").hidden = !PREORDER;
   $("qtyEl").textContent = qty;
   $("priceEl").textContent = money(PRICE);
-  $("totalEl").textContent = money(qty*PRICE + SHIP) + (SHIP===0 ? " · free shipping" : ` (incl. ${money(SHIP)} shipping)`);
-  const enc = encodeURIComponent, body = enc(orderText());
-  const btns = [];
-  if (STRIPE) btns.push(`<a class="btn primary" href="${STRIPE}">Pay by card / Apple Pay</a>`);
-  if (VENMO){
-    const total = qty*PRICE + SHIP;
-    const note = `${qty}-magnet${qty>1?"s":""}-address:`;
-    btns.push(`<a class="btn ${STRIPE?"":"primary"}" href="https://venmo.com/${VENMO}?txn=pay&amount=${total}&note=${note}">Pay with Venmo</a>`);
-  }
-  if (PHONE){
-    const sep = /iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?";
-    btns.push(`<a class="btn" href="sms:+${PHONE}${sep}body=${body}">Text your ${word}</a>`);
-  }
-  btns.push(`<a class="btn ${btns.length?"":"primary"}" href="mailto:${EMAIL}?subject=${enc("Magnet "+word+" ("+qty+")")}&body=${body}">Email your ${word}</a>`);
-  $("buyBtns").innerHTML = btns.join("");
-  $("payTip").hidden = !VENMO;
+  $("shipSub").textContent = "+" + money(SHIP) + " flat";
+  $("totalEl").textContent = money(total()) + (mode === "ship" ? " incl. shipping" : (mode === "pickup" ? " · pickup" : ""));
+  const ready = mode === "pickup" || (mode === "ship" && addressValid());
+  const label = mode === null ? "Choose ship or pickup" : (ready ? "Pay with Venmo" : "Fill in your address");
+  $("buyBtns").innerHTML = ready
+    ? `<a class="btn" href="${venmoHref()}">Pay with Venmo</a>`
+    : `<div class="btn off">${label}</div>`;
 }
+
 function bump(d){ qty = Math.min(99, Math.max(1, qty + d)); render(); }
 render();
 </script>
