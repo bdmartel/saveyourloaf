@@ -241,18 +241,17 @@ function setMode(m){
   revalidate();
 }
 
-function clean(s){
-  return s.trim().replace(/[^\w#\/]+/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"");
+function packNote(parts){
+  // Venmo turns real spaces into "+", so join with non-breaking spaces (renders like normal spaces)
+  const t = parts.join(" ").replace(/[,]+/g," ").replace(/\s+/g," ").trim();
+  return encodeURIComponent(t.replace(/ /g, " "));
 }
 
 function venmoHref(){
-  const m = `${qty}-magnet${qty>1?"s":""}`;
-  let note;
-  if (mode === "pickup"){
-    note = `${m}-PICKUP`;
-  } else {
-    note = `${m}-ship-to:-${clean(val("aName"))}-${clean(val("aStreet"))}-${clean(val("aCity"))}-${val("aState").toUpperCase()}-${val("aZip")}`;
-  }
+  const m = `${qty} magnet${qty>1?"s":""}`;
+  const note = (mode === "pickup")
+    ? packNote([m, "PICKUP"])
+    : packNote([m, "ship to:", val("aName"), val("aStreet"), val("aCity"), val("aState").toUpperCase(), val("aZip")]);
   return `https://venmo.com/${VENMO}?txn=pay&amount=${total()}&note=${note}`;
 }
 
