@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bake With Sourdough — the bumper magnet</title>
+<meta name="description" content="BAKE WITH SOURDOUGH. IT COULD SAVE YOUR LOAF. A loving parody of a New England road-safety classic, as a bumper magnet.">
+<meta property="og:title" content="Bake With Sourdough — the bumper magnet">
+<meta property="og:description" content="IT COULD SAVE YOUR LOAF. Get the magnet.">
+<meta property="og:image" content="https://bdmartel.github.io/saveyourloaf/hero.png">
+<meta property="og:type" content="product">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍞</text></svg>">
+<style>
+  :root{
+    --yellow:#FEDD00;   /* Pantone Yellow C — matched to the original sticker */
+    --ink:#111111;
+    --paper:#fffdf2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--yellow);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100dvh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:max(16px,env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  }
+  main{width:100%;max-width:560px}
+  .hero{
+    margin:8px -4px 18px;
+    transform:rotate(-1.6deg);
+  }
+  .hero img{
+    width:100%;height:auto;display:block;
+    border:3px solid var(--ink);border-radius:10px;
+    box-shadow:0 10px 24px rgba(0,0,0,.28);
+    background:var(--yellow);
+  }
+  h1{
+    font-size:clamp(26px,7.5vw,38px);
+    line-height:1.05;letter-spacing:.5px;
+    text-transform:uppercase;font-weight:900;
+    margin:4px 0 6px;
+  }
+  .tag{font-size:17px;font-weight:600;margin-bottom:16px}
+  .blurb{font-size:15.5px;line-height:1.45;margin-bottom:20px}
+  .blurb b{white-space:nowrap}
+  .card{
+    background:var(--paper);
+    border:3px solid var(--ink);border-radius:16px;
+    padding:18px 16px;margin-bottom:16px;
+  }
+  .pricerow{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .price{font-size:30px;font-weight:900}
+  .each{font-size:13px;font-weight:600;opacity:.65}
+  .qty{display:flex;align-items:center;gap:0;border:3px solid var(--ink);border-radius:14px;overflow:hidden}
+  .qty button{
+    width:56px;height:56px;border:0;background:var(--ink);color:var(--yellow);
+    font-size:28px;font-weight:900;cursor:pointer;touch-action:manipulation;
+  }
+  .qty button:active{opacity:.8}
+  .qty output{width:64px;text-align:center;font-size:24px;font-weight:900;background:#fff}
+  .total{display:flex;justify-content:space-between;font-size:18px;font-weight:800;margin:6px 2px 14px}
+  .buy{display:flex;flex-direction:column;gap:12px}
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    min-height:58px;border-radius:14px;border:3px solid var(--ink);
+    font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
+    text-decoration:none;color:var(--ink);background:#fff;
+    touch-action:manipulation;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:var(--ink);color:var(--yellow)}
+  .fine{font-size:13px;line-height:1.5;opacity:.75;margin-top:4px}
+  .fine a{color:inherit}
+  footer{font-size:12.5px;opacity:.6;margin-top:22px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+  <div class="hero"><img src="hero.png" alt="Yellow bumper magnet: BAKE WITH SOURDOUGH — IT COULD SAVE YOUR LOAF, with a dark loaf of bread inside a road-sign diamond"></div>
+
+  <h1>Bake With Sourdough<br>— the bumper magnet</h1>
+  <p class="tag">It could save your loaf.</p>
+  <p class="blurb">A loving parody of a certain New England road-safety classic, in the same screaming warning yellow. It's a <b>magnet, not a sticker</b> — goes on the truck, comes off for the fridge, leaves no regrets.</p>
+
+  <div class="card">
+    <div class="pricerow">
+      <div><span class="price" id="priceEl"></span> <span class="each">each</span></div>
+      <div class="qty" role="group" aria-label="Quantity">
+        <button type="button" aria-label="Fewer" onclick="bump(-1)">−</button>
+        <output id="qtyEl" aria-live="polite">1</output>
+        <button type="button" aria-label="More" onclick="bump(1)">+</button>
+      </div>
+    </div>
+    <div class="total"><span>Total</span><span id="totalEl"></span></div>
+    <div class="buy" id="buyBtns"></div>
+    <p class="fine" id="payNote"></p>
+  </div>
+
+  <footer>Made and shipped from Peterborough, New Hampshire.</footer>
+</main>
+
+<script>
+/* ====== CONFIG — edit these and redeploy ====== */
+const PRICE   = 8;                       // dollars each
+const SHIP    = 0;                       // flat shipping, 0 = free
+const EMAIL   = "bdmartel@gmail.com";    // order email (always shown)
+const PHONE   = "";                      // e.g. "16035551234" -> shows "Text your order"
+const VENMO   = "";                      // e.g. "Ben-Martel" -> shows Venmo button
+const STRIPE  = "";                      // Stripe Payment Link URL -> shows card/Apple Pay button
+/* ============================================== */
+
+let qty = 1;
+const $ = id => document.getElementById(id);
+const money = n => "$" + (n % 1 ? n.toFixed(2) : n);
+
+function orderText(){
+  const t = qty * PRICE + SHIP;
+  return `Hi Ben — I'd like ${qty} Bake With Sourdough magnet${qty>1?"s":""} (${money(t)} total). Ship to:\n\n[your name + mailing address]`;
+}
+function render(){
+  $("qtyEl").textContent = qty;
+  $("priceEl").textContent = money(PRICE);
+  $("totalEl").textContent = money(qty*PRICE + SHIP) + (SHIP===0 ? " · free shipping" : ` (incl. ${money(SHIP)} shipping)`);
+  const enc = encodeURIComponent, body = enc(orderText());
+  const btns = [];
+  if (STRIPE) btns.push(`<a class="btn primary" href="${STRIPE}">Pay by card / Apple Pay</a>`);
+  if (VENMO)  btns.push(`<a class="btn ${STRIPE?"":"primary"}" href="https://account.venmo.com/u/${VENMO}">Pay with Venmo</a>`);
+  if (PHONE){
+    const sep = /iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?";
+    btns.push(`<a class="btn" href="sms:+${PHONE}${sep}body=${body}">Text your order</a>`);
+  }
+  btns.push(`<a class="btn ${btns.length?"":"primary"}" href="mailto:${EMAIL}?subject=${enc("Magnet order ("+qty+")")}&body=${body}">Email your order</a>`);
+  $("buyBtns").innerHTML = btns.join("");
+  $("payNote").textContent = (STRIPE || VENMO)
+    ? "Card and Venmo orders: include your mailing address in the note."
+    : "Send your order and mailing address — you'll get payment details and a confirmation right back.";
+}
+function bump(d){ qty = Math.min(99, Math.max(1, qty + d)); render(); }
+render();
+</script>
+</body>
+</html>
