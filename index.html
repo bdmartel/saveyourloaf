@@ -102,6 +102,7 @@
     </div>
     <div class="total"><span>Total</span><span id="totalEl"></span></div>
     <div class="buy" id="buyBtns"></div>
+    <p class="fine" id="payTip" hidden>Venmo orders: put your mailing address in the payment note.</p>
     <p class="fine">For bakers, movers, shakers, kneeders, givers, takers</p>
   </div>
 </main>
@@ -112,7 +113,7 @@ const PRICE   = 8;                       // dollars each
 const SHIP    = 7;                       // flat shipping: ~$6 USPS Ground Advantage (commercial) + mailer
 const EMAIL   = "bdmartel@gmail.com";    // order email (always shown)
 const PHONE   = "";                      // e.g. "16035551234" -> shows "Text your order"
-const VENMO   = "";                      // e.g. "Ben-Martel" -> shows Venmo button
+const VENMO   = "Ben-Martel";            // shows Venmo button -> venmo.com/u/Ben-Martel
 const STRIPE  = "";                      // Stripe Payment Link URL -> shows card/Apple Pay button
 const PREORDER = true;                   // true = preorder badge + wording; set false when shipping from stock
 /* ============================================== */
@@ -142,6 +143,7 @@ function render(){
   }
   btns.push(`<a class="btn ${btns.length?"":"primary"}" href="mailto:${EMAIL}?subject=${enc("Magnet "+word+" ("+qty+")")}&body=${body}">Email your ${word}</a>`);
   $("buyBtns").innerHTML = btns.join("");
+  $("payTip").hidden = !VENMO;
 }
 function bump(d){ qty = Math.min(99, Math.max(1, qty + d)); render(); }
 render();
