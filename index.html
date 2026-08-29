@@ -28,16 +28,16 @@
     padding:max(16px,env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
   }
   main{width:100%;max-width:560px}
-  .hero{
-    margin:8px -4px 18px;
-    transform:rotate(-1.6deg);
-  }
-  .hero img{
-    width:100%;height:auto;display:block;
-    border:3px solid var(--ink);border-radius:10px;
-    box-shadow:0 10px 24px rgba(0,0,0,.28);
+  .stack{margin:6px -16px 20px;overflow:hidden;padding:16px 12px 20px;display:flex;flex-direction:column;gap:14px}
+  .stack img{
+    width:103%;margin-left:-1.5%;height:auto;display:block;
+    border:3px solid var(--ink);border-radius:8px;
+    box-shadow:9px 11px 0 var(--ink);
     background:var(--yellow);
   }
+  .stack .s1{transform:rotate(-5deg)}
+  .stack .s2{transform:rotate(2.5deg)}
+  .stack .s3{transform:rotate(-2deg)}
   h1{
     font-size:clamp(26px,7.5vw,38px);
     line-height:1.05;letter-spacing:.5px;
@@ -81,7 +81,11 @@
 </head>
 <body>
 <main>
-  <div class="hero"><img src="hero.png?v=3" alt="Yellow bumper magnet: BAKE WITH SOURDOUGH — IT COULD SAVE YOUR LOAF, with a dark loaf of bread inside a road-sign diamond"></div>
+  <div class="stack">
+    <img class="s1" src="hero.png?v=3" alt="Yellow bumper magnet: BAKE WITH SOURDOUGH — IT COULD SAVE YOUR LOAF, with a dark loaf of bread inside a road-sign diamond">
+    <img class="s2" src="hero.png?v=3" alt="">
+    <img class="s3" src="hero.png?v=3" alt="">
+  </div>
 
   <h1>Bake With Sourdough<br>— the bumper magnet</h1>
   <p class="tag">It could save your loaf.</p>
