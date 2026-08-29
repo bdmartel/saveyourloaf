@@ -138,7 +138,7 @@ function render(){
   if (STRIPE) btns.push(`<a class="btn primary" href="${STRIPE}">Pay by card / Apple Pay</a>`);
   if (VENMO){
     const total = qty*PRICE + SHIP;
-    const note = enc(`${qty} Save Your Loaf magnet${qty>1?"s":""} — my address: `);
+    const note = `${qty}-magnet${qty>1?"s":""}-address:`;
     btns.push(`<a class="btn ${STRIPE?"":"primary"}" href="https://venmo.com/${VENMO}?txn=pay&amount=${total}&note=${note}">Pay with Venmo</a>`);
   }
   if (PHONE){
