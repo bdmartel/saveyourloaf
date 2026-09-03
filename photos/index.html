@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Loaf Log — Save Your Loaf</title>
-<meta name="description" content="Photo log of the BAKE WITH SOURDOUGH bumper magnet out in the world.">
+<meta name="description" content="Photo log of the BAKE WITH SOURDOUGH bumper magnet out in the world. Add yours.">
 <meta property="og:title" content="Loaf Log">
-<meta property="og:description" content="The magnet, out in the world.">
+<meta property="og:description" content="The magnet, out in the world. Add yours.">
 <meta property="og:image" content="https://saveyourloaf.com/photos/2026-09-02-first-truck.jpg">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍞</text></svg>">
 <style>
-  :root{--yellow:#FEDD00;--ink:#111111;--paper:#fffdf2}
+  :root{--yellow:#FEDD00;--ink:#111111;--paper:#fffdf2;--bad:#c0261a;--ok:#1c7a2e}
   *{margin:0;padding:0;box-sizing:border-box}
   [hidden]{display:none!important}
   body{background:var(--yellow);color:var(--ink);
@@ -19,13 +19,36 @@
     padding:max(20px,env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom));}
   main{width:100%;max-width:560px}
   h1{font-size:clamp(30px,8vw,42px);text-transform:uppercase;font-weight:900;letter-spacing:.5px;margin:6px 0 2px}
-  .sub{font-size:16px;font-weight:600;margin-bottom:26px}
+  .sub{font-size:16px;font-weight:600;margin-bottom:22px}
   .sub a{color:var(--ink)}
+  .card{background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:18px 16px;margin-bottom:30px}
+  .card h2{font-size:19px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .card p{font-size:14.5px;line-height:1.5;margin-bottom:12px}
+  .filerow{display:flex;flex-direction:column;gap:10px}
+  input[type=text]{
+    width:100%;border:3px solid var(--ink);border-radius:10px;background:#fff;
+    font:600 16px/1.2 inherit;font-family:inherit;padding:12px;outline:none;
+  }
+  input[type=text]:focus{box-shadow:3px 3px 0 var(--ink)}
+  .pickbtn,.sendbtn{
+    display:flex;align-items:center;justify-content:center;min-height:54px;
+    border:3px solid var(--ink);border-radius:12px;font-size:16.5px;font-weight:900;
+    text-transform:uppercase;letter-spacing:.5px;cursor:pointer;touch-action:manipulation;
+    background:#fff;color:var(--ink);width:100%;
+  }
+  .sendbtn{background:var(--ink);color:var(--yellow)}
+  .sendbtn.off{opacity:.35;pointer-events:none}
+  .pickbtn input{display:none}
+  .preview{width:100%;border:3px solid var(--ink);border-radius:10px;display:none}
+  .msg{font-size:14px;font-weight:700;min-height:18px}
+  .msg.bad{color:var(--bad)} .msg.ok{color:var(--ok)}
+  .hpwrap{position:absolute;left:-5000px;top:-5000px}
   .entry{margin-bottom:34px}
-  .entry img{width:100%;height:auto;display:block;border:3px solid var(--ink);border-radius:10px;box-shadow:8px 10px 0 var(--ink)}
-  .meta{display:flex;justify-content:space-between;align-items:baseline;margin:14px 2px 0}
+  .entry img{width:100%;height:auto;display:block;border:3px solid var(--ink);border-radius:10px;box-shadow:8px 10px 0 var(--ink);background:#fff}
+  .meta{display:flex;justify-content:space-between;align-items:baseline;margin:14px 2px 0;gap:10px}
   .cap{font-size:16px;font-weight:700}
-  .date{font-size:13px;font-weight:600;opacity:.6}
+  .date{font-size:13px;font-weight:600;opacity:.6;white-space:nowrap}
+  .secthead{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:2px;opacity:.6;margin:6px 2px 16px}
   footer{margin-top:10px;font-size:13px;opacity:.7}
   footer a{color:var(--ink)}
 </style>
@@ -35,7 +58,26 @@
   <h1>Loaf Log</h1>
   <p class="sub">The magnet, out in the world. Get yours at <a href="/">saveyourloaf.com</a>.</p>
 
-  <!-- entries: newest first -->
+  <div class="card">
+    <h2>Add yours</h2>
+    <p>Got one? Stick it somewhere good, snap a photo, drop it here. Every photo gets a quick once-over before it appears — give it a little while.</p>
+    <form id="upForm" class="filerow">
+      <label class="pickbtn" id="pickLabel">Choose a photo
+        <input type="file" id="photo" accept="image/jpeg,image/png,image/webp,image/*">
+      </label>
+      <img class="preview" id="preview" alt="">
+      <input type="text" id="uName" placeholder="Your name (optional)" maxlength="40" autocomplete="name">
+      <input type="text" id="uNote" placeholder="Where is it? (optional)" maxlength="140">
+      <div class="hpwrap" aria-hidden="true"><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+      <button type="submit" class="sendbtn off" id="sendBtn">Send it in</button>
+      <div class="msg" id="msg" aria-live="polite"></div>
+    </form>
+  </div>
+
+  <div class="secthead">From the field</div>
+  <div id="fanPhotos"></div>
+
+  <div class="secthead">From HQ</div>
   <div class="entry">
     <img src="2026-09-02-first-truck.jpg" alt="The BAKE WITH SOURDOUGH magnet on the chrome bumper of a green Toyota Tundra">
     <div class="meta"><span class="cap">The first one, on the first truck.</span><span class="date">Sep 2, 2026</span></div>
@@ -43,5 +85,70 @@
 
   <footer><a href="/">&larr; back to the shop</a></footer>
 </main>
+
+<script>
+const API = "https://benmartel.com/loafphotos";
+let token = null, file = null;
+const $ = id => document.getElementById(id);
+
+fetch(API + "/token.php").then(r => r.json()).then(t => token = t).catch(() => {});
+
+$("photo").addEventListener("change", e => {
+  file = e.target.files[0] || null;
+  if (file){
+    $("preview").src = URL.createObjectURL(file);
+    $("preview").style.display = "block";
+    $("pickLabel").firstChild.textContent = "Change photo";
+    $("sendBtn").classList.remove("off");
+  }
+});
+
+$("upForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("msg");
+  if (!file){ msg.className = "msg bad"; msg.textContent = "Pick a photo first."; return; }
+  if (!token){ msg.className = "msg bad"; msg.textContent = "Could not reach the upload server — try a reload."; return; }
+  msg.className = "msg"; msg.textContent = "Sending…";
+  $("sendBtn").classList.add("off");
+  const fd = new FormData();
+  fd.append("photo", file);
+  fd.append("name", $("uName").value);
+  fd.append("note", $("uNote").value);
+  fd.append("website", $("website").value);
+  fd.append("ts", token.ts);
+  fd.append("sig", token.sig);
+  try {
+    const r = await fetch(API + "/upload.php", { method: "POST", body: fd });
+    const d = await r.json();
+    if (d.ok){
+      msg.className = "msg ok";
+      msg.textContent = "Got it. It'll show up here once it's approved. Thanks!";
+      $("upForm").reset(); file = null;
+      $("preview").style.display = "none";
+      $("pickLabel").firstChild.textContent = "Choose a photo";
+    } else {
+      msg.className = "msg bad"; msg.textContent = d.error || "Something went wrong.";
+      $("sendBtn").classList.remove("off");
+    }
+  } catch(err){
+    msg.className = "msg bad"; msg.textContent = "Upload failed — check your connection and retry.";
+    $("sendBtn").classList.remove("off");
+  }
+});
+
+fetch(API + "/list.php").then(r => r.json()).then(d => {
+  const wrap = $("fanPhotos");
+  if (!d.photos || !d.photos.length){
+    wrap.innerHTML = '<p style="font-size:14px;opacity:.6;margin-bottom:30px">Nothing yet — your photo could be first.</p>';
+    return;
+  }
+  wrap.innerHTML = d.photos.map(p => {
+    const who = p.name ? p.name : "someone";
+    const cap = p.note ? (who + " · " + p.note) : who;
+    return '<div class="entry"><img loading="lazy" src="' + p.img + '" alt="Fan photo of the magnet">' +
+      '<div class="meta"><span class="cap">' + cap.replace(/</g,"&lt;") + '</span><span class="date">' + (p.date||"") + '</span></div></div>';
+  }).join("");
+}).catch(() => {});
+</script>
 </body>
 </html>
